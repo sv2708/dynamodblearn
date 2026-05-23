@@ -44,7 +44,7 @@ Cart CRUD endpoints are available under `/carts`:
 POST   /carts
 GET    /carts
 GET    /carts/{cartId}
-PUT    /carts/{cartId}
+PATCH  /carts/{cartId}
 DELETE /carts/{cartId}
 ```
 

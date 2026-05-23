@@ -71,16 +71,32 @@ public final class CartMapper {
         return Map.of(CART_ID, AttributeValue.builder().s(cartId).build());
     }
 
+    static AttributeValue stringValue(String value) {
+        return AttributeValue.builder().s(value).build();
+    }
+
+    static AttributeValue instantValue(Instant value) {
+        return AttributeValue.builder().s(value.toString()).build();
+    }
+
+    static AttributeValue numberValue(BigDecimal value) {
+        return AttributeValue.builder().n(value.toPlainString()).build();
+    }
+
+    static AttributeValue itemsValue(List<CartItem> items) {
+        return AttributeValue.builder()
+                .l(items.stream()
+                        .map(CartMapper::toItemValue)
+                        .toList())
+                .build();
+    }
+
     private static void putItems(Map<String, AttributeValue> item, List<CartItem> items) {
         if (items == null) {
             return;
         }
 
-        item.put(ITEMS, AttributeValue.builder()
-                .l(items.stream()
-                        .map(CartMapper::toItemValue)
-                        .toList())
-                .build());
+        item.put(ITEMS, itemsValue(items));
     }
 
     private static AttributeValue toItemValue(CartItem cartItem) {

@@ -4,8 +4,8 @@ import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.PATCH;
 import jakarta.ws.rs.POST;
-import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
@@ -75,9 +75,9 @@ public class CartResource {
                 .orElseThrow(() -> new NotFoundException("Cart not found: " + cartId));
     }
 
-    @PUT
+    @PATCH
     @Path("/{cartId}")
-    @Operation(summary = "Update a cart", description = "Updates mutable cart fields. Omitted fields keep their existing values.")
+    @Operation(summary = "Patch a cart", description = "Partially updates mutable cart fields without a prior read. Omitted fields keep their existing values.")
     @APIResponses({
             @APIResponse(responseCode = "200", description = "Cart updated.",
                     content = @Content(schema = @Schema(implementation = Cart.class))),
@@ -86,11 +86,11 @@ public class CartResource {
             @APIResponse(responseCode = "404", description = "Cart not found.",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public Cart update(
+    public Cart patch(
             @Parameter(description = "Cart identifier.", required = true, example = "cart-1001")
             @PathParam("cartId") String cartId,
             UpdateCartRequest request) {
-        return cartService.update(cartId, request)
+        return cartService.patch(cartId, request)
                 .orElseThrow(() -> new NotFoundException("Cart not found: " + cartId));
     }
 

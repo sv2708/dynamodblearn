@@ -57,26 +57,21 @@ public class CartService {
         return cartRepository.find(cartId);
     }
 
-    public Optional<Cart> update(String cartId, UpdateCartRequest request) {
+    public Optional<Cart> patch(String cartId, UpdateCartRequest request) {
         if (request == null) {
             throw new InvalidCartException("request body is required");
         }
 
-        return find(cartId)
-                .map(existing -> {
-                    var items = request.items() == null ? existing.items() : normalizeItems(request.items());
-                    var updated = new Cart(
-                            existing.cartId(),
-                            request.customerId() == null ? existing.customerId() : request.customerId(),
-                            request.status() == null ? existing.status() : request.status(),
-                            items,
-                            CartMapper.totalAmount(items),
-                            request.currency() == null ? existing.currency() : defaultCurrency(request.currency()),
-                            existing.createdAt(),
-                            clock.instant());
-                    cartRepository.update(updated);
-                    return updated;
-                });
+        validateOptionalText(request.customerId(), "customerId");
+        validateOptionalText(request.status(), "status");
+        if (request.currency() != null) {
+            validateOptionalText(request.currency(), "currency");
+        }
+        if (request.items() != null) {
+            normalizeItems(request.items());
+        }
+
+        return cartRepository.patch(cartId, request, clock.instant());
     }
 
     public boolean delete(String cartId) {
@@ -88,6 +83,12 @@ public class CartService {
             throw new InvalidCartException(fieldName + " is required");
         }
         return value;
+    }
+
+    private static void validateOptionalText(String value, String fieldName) {
+        if (value != null && value.isBlank()) {
+            throw new InvalidCartException(fieldName + " must not be blank");
+        }
     }
 
     private static List<CartItem> normalizeItems(List<CartItem> items) {
